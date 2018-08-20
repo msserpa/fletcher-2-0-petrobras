@@ -28,9 +28,9 @@ void OPENMP_Propagate(int sx, int sy, int sz, int bord,
     
     
 #pragma omp for
-    for (int iz=bord; iz<sz-bord; iz++) {
-      for (int iy=bord; iy<sy-bord; iy++) {
-	for (int ix=bord; ix<sx-bord; ix++) {
+for (int iz=bord; iz<sz-bord; iz++) {
+  for (int iy=bord; iy<sy-bord; iy++) {
+    for (int ix=bord; ix<sx-bord; ix++) {
 
 
 #define SAMPLE_LOOP
