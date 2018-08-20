@@ -1,0 +1,7 @@
+# DICA: faça source eb-modules.txt que os módulos EasyBuild para
+# compilar todos os backends serão carregados corretamente
+# tanto na BLAISE quanto na EXAHOST
+
+module load gompi
+module load CUDA/9.2.88-GCC-6.4.0-2.28
+module load PGI
