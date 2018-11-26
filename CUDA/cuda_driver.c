@@ -39,14 +39,7 @@ void DRIVER_Initialize(const int rank, const int sx, const int sy, const int sz,
 {
 
 	   CUDA_Initialize(rank, sx,   sy,   sz,   bord,
-		  dx,  dy,  dz,  dt,
-	          ch1dxx,    ch1dyy,    ch1dzz, 
-  	          ch1dxy,    ch1dyz,    ch1dxz, 
-  	          v2px,    v2pz,    v2sz,    v2pn,
-  	          vpz,    vsv,    epsilon,    delta,
-  	          phi,    theta,    fatAbsorb,
-  	          pp,    pc,    qp,    qc);
-
+		  dx,  dy,  dz,  dt);
 }
 
 
@@ -59,7 +52,7 @@ void DRIVER_Finalize()
 
 void DRIVER_Update_pointers(const int sx, const int sy, const int sz, float *pc)
 {
-	CUDA_Update_pointers(sx,sy,sz,pc);
+	// CUDA_Update_pointers(sx,sy,sz,pc);
 }
 
 
@@ -73,11 +66,14 @@ void DRIVER_Propagate(const int sx, const int sy, const int sz, const int bord,
 
 	// CUDA_Propagate also does TimeForward
 	   CUDA_Propagate(  sx,   sy,   sz,   bord,
-	                    dx,   dy,   dz,   dt,   it,
-                            ch1dxx,    ch1dyy,    ch1dzz,
-                            ch1dxy,    ch1dyz,    ch1dxz,
-	                    v2px,    v2pz,    v2sz,    v2pn,
-	                    pp,    pc,    qp,    qc);
+	                    dx,   dy,   dz,   dt,   it);
+	   
+	   // CUDA_Propagate(  sx,   sy,   sz,   bord,
+	   //                  dx,   dy,   dz,   dt,   it,
+    //                         ch1dxx,    ch1dyy,    ch1dzz,
+    //                         ch1dxy,    ch1dyz,    ch1dxz,
+	   //                  v2px,    v2pz,    v2sz,    v2pn,
+	   //                  pp,    pc,    qp,    qc);
 
 }
 

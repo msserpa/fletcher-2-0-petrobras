@@ -3,36 +3,29 @@
 
 
 void CUDA_Initialize(const int rank, const int sx, const int sy, const int sz, const int bord,
-	       float dx, float dy, float dz, float dt,
-	       float * restrict ch1dxx, float * restrict ch1dyy, float * restrict ch1dzz, 
-	       float * restrict ch1dxy, float * restrict ch1dyz, float * restrict ch1dxz, 
-	       float * restrict v2px, float * restrict v2pz, float * restrict v2sz, float * restrict v2pn,
-	       float * restrict vpz, float * restrict vsv, float * restrict epsilon, float * restrict delta,
-	       float * restrict phi, float * restrict theta, float * restrict fatAbsorb,
-	       float * restrict pp, float * restrict pc, float * restrict qp, float * restrict qc)
+               float dx, float dy, float dz, float dt)
 {
-
-   extern float* dev_vpz;
-   extern float* dev_vsv;
-   extern float* dev_epsilon;
-   extern float* dev_delta;
-   extern float* dev_phi;
-   extern float* dev_theta;
-   extern float* dev_ch1dxx;
-   extern float* dev_ch1dyy;
-   extern float* dev_ch1dzz;
-   extern float* dev_ch1dxy;
-   extern float* dev_ch1dyz;
-   extern float* dev_ch1dxz;
-   extern float* dev_v2px;
-   extern float* dev_v2pz;
-   extern float* dev_v2sz;
-   extern float* dev_v2pn;
-   extern float* dev_pp;
-   extern float* dev_pc;
-   extern float* dev_qp;
-   extern float* dev_qc;
-   extern float* dev_fatAbsorb;
+extern float* vpz;
+extern float* vsv;
+extern float* epsilon;
+extern float* delta;
+extern float* phi;
+extern float* theta;
+extern float* ch1dxx;
+extern float* ch1dyy;
+extern float* ch1dzz;
+extern float* ch1dxy;
+extern float* ch1dyz;
+extern float* ch1dxz;
+extern float* v2px;
+extern float* v2pz;
+extern float* v2sz;
+extern float* v2pn;
+extern float* pp;
+extern float* pc;
+extern float* qp;
+extern float* qc;  
+extern float* fatAbsorb;
 
  
   // Set the device number based on rank
@@ -59,49 +52,50 @@ void CUDA_Initialize(const int rank, const int sx, const int sy, const int sz, c
 
    const size_t sxsysz=((size_t)sx*sy)*sz;
    const size_t msize_vol=sxsysz*sizeof(float);
-   CUDA_CALL(cudaMalloc(&dev_vpz, msize_vol));
-   CUDA_CALL(cudaMemcpy(dev_vpz, vpz, msize_vol, cudaMemcpyHostToDevice));
-   CUDA_CALL(cudaMalloc(&dev_vsv, msize_vol));
-   CUDA_CALL(cudaMemcpy(dev_vsv, vsv, msize_vol, cudaMemcpyHostToDevice));
-   CUDA_CALL(cudaMalloc(&dev_epsilon, msize_vol));
-   CUDA_CALL(cudaMemcpy(dev_epsilon, epsilon, msize_vol, cudaMemcpyHostToDevice));
-   CUDA_CALL(cudaMalloc(&dev_delta, msize_vol));
-   CUDA_CALL(cudaMemcpy(dev_delta, delta, msize_vol, cudaMemcpyHostToDevice));
-   CUDA_CALL(cudaMalloc(&dev_phi, msize_vol));
-   CUDA_CALL(cudaMemcpy(dev_phi, phi, msize_vol, cudaMemcpyHostToDevice));
-   CUDA_CALL(cudaMalloc(&dev_theta, msize_vol));
-   CUDA_CALL(cudaMemcpy(dev_theta, theta, msize_vol, cudaMemcpyHostToDevice));
-   CUDA_CALL(cudaMalloc(&dev_ch1dxx, msize_vol));
-   CUDA_CALL(cudaMemcpy(dev_ch1dxx, ch1dxx, msize_vol, cudaMemcpyHostToDevice));
-   CUDA_CALL(cudaMalloc(&dev_ch1dyy, msize_vol));
-   CUDA_CALL(cudaMemcpy(dev_ch1dyy, ch1dyy, msize_vol, cudaMemcpyHostToDevice));
-   CUDA_CALL(cudaMalloc(&dev_ch1dzz, msize_vol));
-   CUDA_CALL(cudaMemcpy(dev_ch1dzz, ch1dzz, msize_vol, cudaMemcpyHostToDevice));
-   CUDA_CALL(cudaMalloc(&dev_ch1dxy, msize_vol));
-   CUDA_CALL(cudaMemcpy(dev_ch1dxy, ch1dxy, msize_vol, cudaMemcpyHostToDevice));
-   CUDA_CALL(cudaMalloc(&dev_ch1dyz, msize_vol));
-   CUDA_CALL(cudaMemcpy(dev_ch1dyz, ch1dyz, msize_vol, cudaMemcpyHostToDevice));
-   CUDA_CALL(cudaMalloc(&dev_ch1dxz, msize_vol));
-   CUDA_CALL(cudaMemcpy(dev_ch1dxz, ch1dxz, msize_vol, cudaMemcpyHostToDevice));
-   CUDA_CALL(cudaMalloc(&dev_v2px, msize_vol));
-   CUDA_CALL(cudaMemcpy(dev_v2px, v2px, msize_vol, cudaMemcpyHostToDevice));
-   CUDA_CALL(cudaMalloc(&dev_v2pz, msize_vol));
-   CUDA_CALL(cudaMemcpy(dev_v2pz, v2pz, msize_vol, cudaMemcpyHostToDevice));
-   CUDA_CALL(cudaMalloc(&dev_v2sz, msize_vol));
-   CUDA_CALL(cudaMemcpy(dev_v2sz, v2sz, msize_vol, cudaMemcpyHostToDevice));
-   CUDA_CALL(cudaMalloc(&dev_v2pn, msize_vol));
-   CUDA_CALL(cudaMemcpy(dev_v2pn, v2pn, msize_vol, cudaMemcpyHostToDevice));
-   CUDA_CALL(cudaMalloc(&dev_pp, msize_vol));
-   CUDA_CALL(cudaMemset(dev_pp, 0, msize_vol));
-   CUDA_CALL(cudaMalloc(&dev_pc, msize_vol));
-   CUDA_CALL(cudaMemset(dev_pc, 0, msize_vol));
-   CUDA_CALL(cudaMalloc(&dev_qp, msize_vol));
-   CUDA_CALL(cudaMemset(dev_qp, 0, msize_vol));
-   CUDA_CALL(cudaMalloc(&dev_qc, msize_vol));
-   CUDA_CALL(cudaMemset(dev_qc, 0, msize_vol));
-   CUDA_CALL(cudaMalloc(&dev_fatAbsorb, msize_vol));
-   if (fatAbsorb) CUDA_CALL(cudaMemcpy(dev_fatAbsorb, fatAbsorb, msize_vol, cudaMemcpyHostToDevice));
-   else           CUDA_CALL(cudaMemset(dev_fatAbsorb, 0, msize_vol));
+
+   CUDA_CALL(cudaMallocManaged(&vpz, msize_vol));
+   //dev_vpz, vpz, msize_vol, cudaMemcpyHostToDevice));
+   CUDA_CALL(cudaMallocManaged(&vsv, msize_vol));
+   //dev_vsv, vsv, msize_vol, cudaMemcpyHostToDevice));
+   CUDA_CALL(cudaMallocManaged(&epsilon, msize_vol));
+   //dev_epsilon, epsilon, msize_vol, cudaMemcpyHostToDevice));
+   CUDA_CALL(cudaMallocManaged(&delta, msize_vol));
+   //dev_delta, delta, msize_vol, cudaMemcpyHostToDevice));
+   CUDA_CALL(cudaMallocManaged(&phi, msize_vol));
+   //dev_phi, phi, msize_vol, cudaMemcpyHostToDevice));
+   CUDA_CALL(cudaMallocManaged(&theta, msize_vol));
+   //dev_theta, theta, msize_vol, cudaMemcpyHostToDevice));
+   CUDA_CALL(cudaMallocManaged(&ch1dxx, msize_vol));
+   //dev_ch1dxx, ch1dxx, msize_vol, cudaMemcpyHostToDevice));
+   CUDA_CALL(cudaMallocManaged(&ch1dyy, msize_vol));
+   //dev_ch1dyy, ch1dyy, msize_vol, cudaMemcpyHostToDevice));
+   CUDA_CALL(cudaMallocManaged(&ch1dzz, msize_vol));
+   //dev_ch1dzz, ch1dzz, msize_vol, cudaMemcpyHostToDevice));
+   CUDA_CALL(cudaMallocManaged(&ch1dxy, msize_vol));
+   //dev_ch1dxy, ch1dxy, msize_vol, cudaMemcpyHostToDevice));
+   CUDA_CALL(cudaMallocManaged(&ch1dyz, msize_vol));
+   //dev_ch1dyz, ch1dyz, msize_vol, cudaMemcpyHostToDevice));
+   CUDA_CALL(cudaMallocManaged(&ch1dxz, msize_vol));
+   //dev_ch1dxz, ch1dxz, msize_vol, cudaMemcpyHostToDevice));
+   CUDA_CALL(cudaMallocManaged(&v2px, msize_vol));
+   //dev_v2px, v2px, msize_vol, cudaMemcpyHostToDevice));
+   CUDA_CALL(cudaMallocManaged(&v2pz, msize_vol));
+   //dev_v2pz, v2pz, msize_vol, cudaMemcpyHostToDevice));
+   CUDA_CALL(cudaMallocManaged(&v2sz, msize_vol));
+   //dev_v2sz, v2sz, msize_vol, cudaMemcpyHostToDevice));
+   CUDA_CALL(cudaMallocManaged(&v2pn, msize_vol));
+   //dev_v2pn, v2pn, msize_vol, cudaMemcpyHostToDevice));
+   CUDA_CALL(cudaMallocManaged(&pp, msize_vol));
+   CUDA_CALL(cudaMemset(pp, 0, msize_vol));
+   CUDA_CALL(cudaMallocManaged(&pc, msize_vol));
+   CUDA_CALL(cudaMemset(pc, 0, msize_vol));
+   CUDA_CALL(cudaMallocManaged(&qp, msize_vol));
+   CUDA_CALL(cudaMemset(qp, 0, msize_vol));
+   CUDA_CALL(cudaMallocManaged(&qc, msize_vol));
+   CUDA_CALL(cudaMemset(qc, 0, msize_vol));
+   CUDA_CALL(cudaMallocManaged(&fatAbsorb, msize_vol));
+   if (!fatAbsorb) //dev_fatAbsorb, fatAbsorb, msize_vol, cudaMemcpyHostToDevice));
+             CUDA_CALL(cudaMemset(fatAbsorb, 0, msize_vol));
 
   CUDA_CALL(cudaGetLastError());
   CUDA_CALL(cudaDeviceSynchronize());
@@ -113,59 +107,59 @@ void CUDA_Initialize(const int rank, const int sx, const int sy, const int sz, c
 void CUDA_Finalize()
 {
 
-   extern float* dev_vpz;
-   extern float* dev_vsv;
-   extern float* dev_epsilon;
-   extern float* dev_delta;
-   extern float* dev_phi;
-   extern float* dev_theta;
-   extern float* dev_ch1dxx;
-   extern float* dev_ch1dyy;
-   extern float* dev_ch1dzz;
-   extern float* dev_ch1dxy;
-   extern float* dev_ch1dyz;
-   extern float* dev_ch1dxz;
-   extern float* dev_v2px;
-   extern float* dev_v2pz;
-   extern float* dev_v2sz;
-   extern float* dev_v2pn;
-   extern float* dev_pp;
-   extern float* dev_pc;
-   extern float* dev_qp;
-   extern float* dev_qc;
-   extern float* dev_fatAbsorb;
+   extern float* vpz;
+   extern float* vsv;
+   extern float* epsilon;
+   extern float* delta;
+   extern float* phi;
+   extern float* theta;
+   extern float* ch1dxx;
+   extern float* ch1dyy;
+   extern float* ch1dzz;
+   extern float* ch1dxy;
+   extern float* ch1dyz;
+   extern float* ch1dxz;
+   extern float* v2px;
+   extern float* v2pz;
+   extern float* v2sz;
+   extern float* v2pn;
+   extern float* pp;
+   extern float* pc;
+   extern float* qp;
+   extern float* qc;
+   extern float* fatAbsorb;
 
-   CUDA_CALL(cudaFree(dev_vpz));
-   CUDA_CALL(cudaFree(dev_vsv));
-   CUDA_CALL(cudaFree(dev_epsilon));
-   CUDA_CALL(cudaFree(dev_delta));
-   CUDA_CALL(cudaFree(dev_phi));
-   CUDA_CALL(cudaFree(dev_theta));
-   CUDA_CALL(cudaFree(dev_ch1dxx));
-   CUDA_CALL(cudaFree(dev_ch1dyy));
-   CUDA_CALL(cudaFree(dev_ch1dzz));
-   CUDA_CALL(cudaFree(dev_ch1dxy));
-   CUDA_CALL(cudaFree(dev_ch1dyz));
-   CUDA_CALL(cudaFree(dev_ch1dxz));
-   CUDA_CALL(cudaFree(dev_v2px));
-   CUDA_CALL(cudaFree(dev_v2pz));
-   CUDA_CALL(cudaFree(dev_v2sz));
-   CUDA_CALL(cudaFree(dev_v2pn));
-   CUDA_CALL(cudaFree(dev_pp));
-   CUDA_CALL(cudaFree(dev_pc));
-   CUDA_CALL(cudaFree(dev_qp));
-   CUDA_CALL(cudaFree(dev_qc));
-   CUDA_CALL(cudaFree(dev_fatAbsorb));
+   CUDA_CALL(cudaFree(vpz));
+   CUDA_CALL(cudaFree(vsv));
+   CUDA_CALL(cudaFree(epsilon));
+   CUDA_CALL(cudaFree(delta));
+   CUDA_CALL(cudaFree(phi));
+   CUDA_CALL(cudaFree(theta));
+   CUDA_CALL(cudaFree(ch1dxx));
+   CUDA_CALL(cudaFree(ch1dyy));
+   CUDA_CALL(cudaFree(ch1dzz));
+   CUDA_CALL(cudaFree(ch1dxy));
+   CUDA_CALL(cudaFree(ch1dyz));
+   CUDA_CALL(cudaFree(ch1dxz));
+   CUDA_CALL(cudaFree(v2px));
+   CUDA_CALL(cudaFree(v2pz));
+   CUDA_CALL(cudaFree(v2sz));
+   CUDA_CALL(cudaFree(v2pn));
+   CUDA_CALL(cudaFree(pp));
+   CUDA_CALL(cudaFree(pc));
+   CUDA_CALL(cudaFree(qp));
+   CUDA_CALL(cudaFree(qc));
+   CUDA_CALL(cudaFree(fatAbsorb));
 
    printf("CUDA_Finalize: SUCCESS\n");
 }
 
 
 
-void CUDA_Update_pointers(const int sx, const int sy, const int sz, float *pc)
-{
-   extern float* dev_pc;
-   const size_t sxsysz=((size_t)sx*sy)*sz;
-   const size_t msize_vol=sxsysz*sizeof(float);
-   if (pc) CUDA_CALL(cudaMemcpy(pc, dev_pc, msize_vol, cudaMemcpyDeviceToHost));
-}
+// void CUDA_Update_pointers(const int sx, const int sy, const int sz, float *pc)
+// {
+//    extern float* pc;
+//    const size_t sxsysz=((size_t)sx*sy)*sz;
+//    const size_t msize_vol=sxsysz*sizeof(float);
+//    // if (pc) //pc, dev_pc, msize_vol, cudaMemcpyDeviceToHost));
+// }

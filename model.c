@@ -5,6 +5,25 @@
 #include "walltime.h"
 #include "model.h"
 
+void ModelCUDA(const int st, const int iSource, const float dtOutput, SlicePtr sPtr, 
+           const int sx, const int sy, const int sz, const int bord,
+           const float dx, const float dy, const float dz, const float dt, const int it, 
+           float * restrict ch1dxx, float * restrict ch1dyy, float * restrict ch1dzz, 
+           float * restrict ch1dxy, float * restrict ch1dyz, float * restrict ch1dxz, 
+           float * restrict v2px, float * restrict v2pz, float * restrict v2sz, float * restrict v2pn,
+     float * restrict pp, float * restrict pc, float * restrict qp, float * restrict qc,
+     float * restrict vpz, float * restrict vsv, float * restrict epsilon, float * restrict delta,
+     float * restrict phi, float * restrict theta, float * restrict fatAbsorb, int rank)
+{
+    DRIVER_Initialize(  rank,   sx,   sy,   sz,   bord,
+          dx,  dy,  dz,  dt,
+          ch1dxx,    ch1dyy,    ch1dzz, 
+          ch1dxy,    ch1dyz,    ch1dxz, 
+          v2px,    v2pz,    v2sz,    v2pn,
+          vpz,    vsv,    epsilon,    delta,
+          phi,    theta,    fatAbsorb,
+          pp,    pc,    qp,    qc);
+}
 
 void Model(const int st, const int iSource, const float dtOutput, SlicePtr sPtr, 
            const int sx, const int sy, const int sz, const int bord,
@@ -25,14 +44,15 @@ void Model(const int st, const int iSource, const float dtOutput, SlicePtr sPtr,
 
 
   // DRIVER_Initialize initialize target, allocate data etc
-  DRIVER_Initialize(  rank,   sx,   sy,   sz,   bord,
-		      dx,  dy,  dz,  dt,
-		      ch1dxx,    ch1dyy,    ch1dzz, 
-		      ch1dxy,    ch1dyz,    ch1dxz, 
-		      v2px,    v2pz,    v2sz,    v2pn,
-		      vpz,    vsv,    epsilon,    delta,
-		      phi,    theta,    fatAbsorb,
-		      pp,    pc,    qp,    qc);
+  
+  // DRIVER_Initialize(  rank,   sx,   sy,   sz,   bord,
+		//       dx,  dy,  dz,  dt,
+		//       ch1dxx,    ch1dyy,    ch1dzz, 
+		//       ch1dxy,    ch1dyz,    ch1dxz, 
+		//       v2px,    v2pz,    v2sz,    v2pn,
+		//       vpz,    vsv,    epsilon,    delta,
+		//       phi,    theta,    fatAbsorb,
+		//       pp,    pc,    qp,    qc);
 
   
   double walltime=0.0;
