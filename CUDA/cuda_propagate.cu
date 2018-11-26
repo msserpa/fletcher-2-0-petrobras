@@ -33,30 +33,34 @@ __global__ void kernel_Propagate(const int sx, const int sy, const int sz, const
 // Propagate: using Fletcher's equations, propagate waves one dt,
 //            either forward or backward in time
 void CUDA_Propagate(const int sx, const int sy, const int sz, const int bord,
-         const float dx, const float dy, const float dz, const float dt, const int it)
+	       const float dx, const float dy, const float dz, const float dt, const int it, 
+	       float * restrict ch1dxx, float * restrict ch1dyy, float * restrict ch1dzz, 
+	       float * restrict ch1dxy, float * restrict ch1dyz, float * restrict ch1dxz, 
+	       float * restrict v2px, float * restrict v2pz, float * restrict v2sz, float * restrict v2pn,
+	       float * restrict pp, float * restrict pc, float * restrict qp, float * restrict qc)
 {
 
-   extern float* vpz;
-   extern float* vsv;
-   extern float* epsilon;
-   extern float* delta;
-   extern float* phi;
-   extern float* theta;
-   extern float* ch1dxx;
-   extern float* ch1dyy;
-   extern float* ch1dzz;
-   extern float* ch1dxy;
-   extern float* ch1dyz;
-   extern float* ch1dxz;
-   extern float* v2px;
-   extern float* v2pz;
-   extern float* v2sz;
-   extern float* v2pn;
-   extern float* pp;
-   extern float* pc;
-   extern float* qp;
-   extern float* qc;
-   extern float* fatAbsorb;
+   extern float* dev_vpz;
+   extern float* dev_vsv;
+   extern float* dev_epsilon;
+   extern float* dev_delta;
+   extern float* dev_phi;
+   extern float* dev_theta;
+   extern float* dev_ch1dxx;
+   extern float* dev_ch1dyy;
+   extern float* dev_ch1dzz;
+   extern float* dev_ch1dxy;
+   extern float* dev_ch1dyz;
+   extern float* dev_ch1dxz;
+   extern float* dev_v2px;
+   extern float* dev_v2pz;
+   extern float* dev_v2sz;
+   extern float* dev_v2pn;
+   extern float* dev_pp;
+   extern float* dev_pc;
+   extern float* dev_qp;
+   extern float* dev_qc;
+   extern float* dev_fatAbsorb;
 
 
   dim3 threadsPerBlock(BSIZE_X, BSIZE_Y);
@@ -64,15 +68,15 @@ void CUDA_Propagate(const int sx, const int sy, const int sz, const int bord,
   
   kernel_Propagate <<<numBlocks, threadsPerBlock>>> (  sx,   sy,   sz,   bord,
 	         dx,   dy,   dz,   dt,   it, 
-	        ch1dxx,  ch1dyy,  ch1dzz, 
-	        ch1dxy,  ch1dyz,  ch1dxz, 
-	        v2px,  v2pz,  v2sz,  v2pn,
-	        pp,  pc,  qp,  qc);
+	        dev_ch1dxx,  dev_ch1dyy,  dev_ch1dzz, 
+	        dev_ch1dxy,  dev_ch1dyz,  dev_ch1dxz, 
+	        dev_v2px,  dev_v2pz,  dev_v2sz,  dev_v2pn,
+	        dev_pp,  dev_pc,  dev_qp,  dev_qc);
 
   CUDA_CALL(cudaGetLastError());
   CUDA_CALL(cudaDeviceSynchronize());
 
-  CUDA_SwapArrays(&pp, &pc, &qp, &qc);
+  CUDA_SwapArrays(&dev_pp, &dev_pc, &dev_qp, &dev_qc);
 }
 
 // swap array pointers on time forward array propagation

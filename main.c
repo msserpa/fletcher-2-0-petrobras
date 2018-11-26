@@ -113,10 +113,10 @@ int main(int argc, char** argv) {
 
 #ifdef _DUMP
   printf("Grid size is (%d,%d,%d) with spacing (%.2f,%.2f,%.2f); simulated area (%.2f,%.2f,%.2f) \n", 
-   nx, ny, nz, dx, dy, dz, (nx-1)*dx, (ny-1)*dy, (nz-1)*dz);
+	 nx, ny, nz, dx, dy, dz, (nx-1)*dx, (ny-1)*dy, (nz-1)*dz);
   printf("Grid is extended by %d absortion points and %d border points at each extreme\n", absorb, bord);
   printf("Wave is propagated at internal+absortion points of size (%d,%d,%d)\n",
-   nx+2*absorb, ny+2*absorb, nz+2*absorb);
+	 nx+2*absorb, ny+2*absorb, nz+2*absorb);
   printf("Source at coordinates (%d,%d,%d)\n", ixSource,iySource,izSource);
   printf("Will run %d time steps of %f to reach time %f\n", st, dt, st*dt);
 #ifdef _OPENMP
@@ -128,58 +128,25 @@ int main(int argc, char** argv) {
 
 #endif
 
-   float* vpz;
-   float* vsv;
-   float* epsilon;
-   float* delta;
-   float* phi;
-   float* theta;
-   float* ch1dxx;
-   float* ch1dyy;
-   float* ch1dzz;
-   float* ch1dxy;
-   float* ch1dyz;
-   float* ch1dxz;
-   float* v2px;
-   float* v2pz;
-   float* v2sz;
-   float* v2pn;
-   float* pp;
-   float* pc;
-   float* qp;
-   float* qc;
-   float* fatAbsorb;
-
-  ModelCUDA(st,     iSource, dtOutput, NULL,
-        sx,     sy,      sz,       bord,
-        dx,     dy,      dz,       dt,   it, 
-        NULL,     NULL,      NULL,
-        NULL,     NULL,      NULL,
-        NULL,     NULL,      NULL,       NULL,
-        NULL,     NULL,      NULL,       NULL,
-  NULL,    NULL,     NULL,  NULL,
-  NULL,    NULL,   NULL,
-  rank);
-
   // allocate input anisotropy arrays
+  
+  float *vpz=NULL;      // p wave speed normal to the simetry plane
+  vpz = (float *) malloc(sx*sy*sz*sizeof(float));
 
-  // float *vpz=NULL;      // p wave speed normal to the simetry plane
-  // vpz = (float *) malloc(sx*sy*sz*sizeof(float));
-
-  // float *vsv=NULL;      // sv wave speed normal to the simetry plane
-  // vsv = (float *) malloc(sx*sy*sz*sizeof(float));
+  float *vsv=NULL;      // sv wave speed normal to the simetry plane
+  vsv = (float *) malloc(sx*sy*sz*sizeof(float));
   
-  // float *epsilon=NULL;  // Thomsen isotropic parameter
-  // epsilon = (float *) malloc(sx*sy*sz*sizeof(float));
+  float *epsilon=NULL;  // Thomsen isotropic parameter
+  epsilon = (float *) malloc(sx*sy*sz*sizeof(float));
   
-  // float *delta=NULL;    // Thomsen isotropic parameter
-  // delta = (float *) malloc(sx*sy*sz*sizeof(float));
+  float *delta=NULL;    // Thomsen isotropic parameter
+  delta = (float *) malloc(sx*sy*sz*sizeof(float));
   
-  // float *phi=NULL;     // isotropy simetry azimuth angle
-  // phi = (float *) malloc(sx*sy*sz*sizeof(float));
+  float *phi=NULL;     // isotropy simetry azimuth angle
+  phi = (float *) malloc(sx*sy*sz*sizeof(float));
   
-  // float *theta=NULL;  // isotropy simetry deep angle
-  // theta = (float *) malloc(sx*sy*sz*sizeof(float));
+  float *theta=NULL;  // isotropy simetry deep angle
+  theta = (float *) malloc(sx*sy*sz*sizeof(float));
 
   // input anisotropy arrays for selected problem formulation
 
@@ -201,7 +168,7 @@ int main(int argc, char** argv) {
 
     if (SIGMA > MAX_SIGMA) {
       printf("Since sigma (%f) is greater that threshold (%f), sigma is considered infinity and vsv is set to zero\n", 
-          SIGMA, MAX_SIGMA);
+		      SIGMA, MAX_SIGMA);
     }
     for (i=0; i<sx*sy*sz; i++) {
       vpz[i]=3000.0;
@@ -210,9 +177,9 @@ int main(int argc, char** argv) {
       phi[i]=0.0;
       theta[i]=0.0;
       if (SIGMA > MAX_SIGMA) {
-  vsv[i]=0.0;
+	vsv[i]=0.0;
       } else {
-  vsv[i]=vpz[i]*sqrtf(fabsf(epsilon[i]-delta[i])/SIGMA);
+	vsv[i]=vpz[i]*sqrtf(fabsf(epsilon[i]-delta[i])/SIGMA);
       }
     }
     break;
@@ -221,7 +188,7 @@ int main(int argc, char** argv) {
 
     if (SIGMA > MAX_SIGMA) {
       printf("Since sigma (%f) is greater that threshold (%f), sigma is considered infinity and vsv is set to zero\n", 
-          SIGMA, MAX_SIGMA);
+		      SIGMA, MAX_SIGMA);
     }
     for (i=0; i<sx*sy*sz; i++) {
       vpz[i]=3000.0;
@@ -230,9 +197,9 @@ int main(int argc, char** argv) {
       phi[i]=0.0;
       theta[i]=atanf(1.0);
       if (SIGMA > MAX_SIGMA) {
-  vsv[i]=0.0;
+	vsv[i]=0.0;
       } else {
-  vsv[i]=vpz[i]*sqrtf(fabsf(epsilon[i]-delta[i])/SIGMA);
+	vsv[i]=vpz[i]*sqrtf(fabsf(epsilon[i]-delta[i])/SIGMA);
       }
     }
   } // end switch
@@ -260,35 +227,35 @@ int main(int argc, char** argv) {
 
 #ifdef _RANDOM_BDRY
   RandomVelocityBoundary(sx, sy, sz,
-       nx, ny, nz,
-       bord, absorb,
-       vpz, vsv);
+			 nx, ny, nz,
+			 bord, absorb,
+			 vpz, vsv);
 #endif
 
 #ifdef _DUMP
   DumpFieldToFile(sx, sy, sz,
-      0, sx-1,
-      0, sy-1,
-      0, sz-1,
-      dx, dy, dz,
-      vpz, "Velocity");
+		  0, sx-1,
+		  0, sy-1,
+		  0, sz-1,
+		  dx, dy, dz,
+		  vpz, "Velocity");
   
 #endif
 
   // coeficients of derivatives at H1 operator
 
-  // float *ch1dxx=NULL;  // isotropy simetry deep angle
-  // ch1dxx = (float *) malloc(sx*sy*sz*sizeof(float));
-  // float *ch1dyy=NULL;  // isotropy simetry deep angle
-  // ch1dyy = (float *) malloc(sx*sy*sz*sizeof(float));
-  // float *ch1dzz=NULL;  // isotropy simetry deep angle
-  // ch1dzz = (float *) malloc(sx*sy*sz*sizeof(float));
-  // float *ch1dxy=NULL;  // isotropy simetry deep angle
-  // ch1dxy = (float *) malloc(sx*sy*sz*sizeof(float));
-  // float *ch1dyz=NULL;  // isotropy simetry deep angle
-  // ch1dyz = (float *) malloc(sx*sy*sz*sizeof(float));
-  // float *ch1dxz=NULL;  // isotropy simetry deep angle
-  // ch1dxz = (float *) malloc(sx*sy*sz*sizeof(float));
+  float *ch1dxx=NULL;  // isotropy simetry deep angle
+  ch1dxx = (float *) malloc(sx*sy*sz*sizeof(float));
+  float *ch1dyy=NULL;  // isotropy simetry deep angle
+  ch1dyy = (float *) malloc(sx*sy*sz*sizeof(float));
+  float *ch1dzz=NULL;  // isotropy simetry deep angle
+  ch1dzz = (float *) malloc(sx*sy*sz*sizeof(float));
+  float *ch1dxy=NULL;  // isotropy simetry deep angle
+  ch1dxy = (float *) malloc(sx*sy*sz*sizeof(float));
+  float *ch1dyz=NULL;  // isotropy simetry deep angle
+  ch1dyz = (float *) malloc(sx*sy*sz*sizeof(float));
+  float *ch1dxz=NULL;  // isotropy simetry deep angle
+  ch1dxz = (float *) malloc(sx*sy*sz*sizeof(float));
   float sinTheta, cosTheta, sin2Theta, sinPhi, cosPhi, sin2Phi;
   for (i=0; i<sx*sy*sz; i++) {
     sinTheta=sin(theta[i]);
@@ -306,19 +273,19 @@ int main(int argc, char** argv) {
   }
 #ifdef _DUMP
   printf("ch1dxx[0]=%f; ch1dyy[0]=%f; ch1dzz[0]=%f; ch1dxy[0]=%f; ch1dxz[0]=%f; ch1dyz[0]=%f\n",
-       ch1dxx[0], ch1dyy[0], ch1dzz[0], ch1dxy[0], ch1dxz[0], ch1dyz[0]);
+    	 ch1dxx[0], ch1dyy[0], ch1dzz[0], ch1dxy[0], ch1dxz[0], ch1dyz[0]);
 #endif
 
   // coeficients of H1 and H2 at PDEs
 
-  // float *v2px=NULL;  // coeficient of H2(p)
-  // v2px = (float *) malloc(sx*sy*sz*sizeof(float));
-  // float *v2pz=NULL;  // coeficient of H1(q)
-  // v2pz = (float *) malloc(sx*sy*sz*sizeof(float));
-  // float *v2sz=NULL;  // coeficient of H1(p-q) and H2(p-q)
-  // v2sz = (float *) malloc(sx*sy*sz*sizeof(float));
-  // float *v2pn=NULL;  // coeficient of H2(p)
-  // v2pn = (float *) malloc(sx*sy*sz*sizeof(float));
+  float *v2px=NULL;  // coeficient of H2(p)
+  v2px = (float *) malloc(sx*sy*sz*sizeof(float));
+  float *v2pz=NULL;  // coeficient of H1(q)
+  v2pz = (float *) malloc(sx*sy*sz*sizeof(float));
+  float *v2sz=NULL;  // coeficient of H1(p-q) and H2(p-q)
+  v2sz = (float *) malloc(sx*sy*sz*sizeof(float));
+  float *v2pn=NULL;  // coeficient of H2(p)
+  v2pn = (float *) malloc(sx*sy*sz*sizeof(float));
   for (i=0; i<sx*sy*sz; i++){
     v2sz[i]=vsv[i]*vsv[i];
     v2pz[i]=vpz[i]*vpz[i];
@@ -327,19 +294,19 @@ int main(int argc, char** argv) {
   }
 #ifdef _DUMP
   printf("v2sz[0]=%f; v2pz[0]=%f; v2px[0]=%f; v2pn[0]=%f\n",
-     v2sz[0], v2pz[0], v2px[0], v2pn[0]);
+  	 v2sz[0], v2pz[0], v2px[0], v2pn[0]);
 #endif
 
   // pressure fields at previous, current and future time steps
-
-  // float *pp=NULL;
-  // pp = (float *) malloc(sx*sy*sz*sizeof(float)); 
-  // float *pc=NULL;
-  // pc = (float *) malloc(sx*sy*sz*sizeof(float)); 
-  // float *qp=NULL;
-  // qp = (float *) malloc(sx*sy*sz*sizeof(float)); 
-  // float *qc=NULL;
-  // qc = (float *) malloc(sx*sy*sz*sizeof(float)); 
+  
+  float *pp=NULL;
+  pp = (float *) malloc(sx*sy*sz*sizeof(float)); 
+  float *pc=NULL;
+  pc = (float *) malloc(sx*sy*sz*sizeof(float)); 
+  float *qp=NULL;
+  qp = (float *) malloc(sx*sy*sz*sizeof(float)); 
+  float *qc=NULL;
+  qc = (float *) malloc(sx*sy*sz*sizeof(float)); 
   for (i=0; i<sx*sy*sz; i++) {
     pp[i]=0.0f; pc[i]=0.0f; 
     qp[i]=0.0f; qc[i]=0.0f;
@@ -347,32 +314,32 @@ int main(int argc, char** argv) {
 
   // absortion zone
 
-  // float *fatAbsorb=NULL;
+  float *fatAbsorb=NULL;
 #ifdef _ABSOR_SQUARE
-  // fatAbsorb = (float *) malloc(sx*sy*sz*sizeof(float));
+  fatAbsorb = (float *) malloc(sx*sy*sz*sizeof(float));
   CreateSquareAbsorb(sx, sy, sz, 
-         nx, ny, nz,
-         bord, absorb,
-         dx, dy, dz,
-         fatAbsorb);
+		     nx, ny, nz,
+		     bord, absorb,
+		     dx, dy, dz,
+		     fatAbsorb);
 #endif
 #ifdef _ABSOR_SPHERE
-  // fatAbsorb = (float *) malloc(sx*sy*sz*sizeof(float));
+  fatAbsorb = (float *) malloc(sx*sy*sz*sizeof(float));
   CreateSphereAbsorb(sx, sy, sz, 
-         nx, ny, nz,
-         bord, absorb,
-         dx, dy, dz,
-         fatAbsorb);
+		     nx, ny, nz,
+		     bord, absorb,
+		     dx, dy, dz,
+		     fatAbsorb);
 #endif
 
 #ifdef _DUMP
   if (fatAbsorb != NULL) {
     DumpFieldToFile(sx, sy, sz,
-        0, sx-1,
-        0, sy-1,
-        0, sz-1,
-        dx, dy, dz,
-        fatAbsorb, "Absorb");
+		    0, sx-1,
+		    0, sy-1,
+		    0, sz-1,
+		    dx, dy, dz,
+		    fatAbsorb, "Absorb");
   }
 #endif
 
@@ -388,17 +355,16 @@ int main(int argc, char** argv) {
 
   SlicePtr sPtr;
   sPtr=OpenSliceFile(ixStart, ixEnd,
-         iyStart, iyEnd,
-         izStart, izEnd,
-         dx, dy, dz, dt,
-         fNameSec);
+		     iyStart, iyEnd,
+		     izStart, izEnd,
+		     dx, dy, dz, dt,
+		     fNameSec);
 
   DumpSliceFile(sx,sy,sz,pc,sPtr);
 #ifdef _DUMP
   DumpSlicePtr(sPtr);
   DumpSliceSummary(sx,sy,sz,sPtr,dt,it,pc,0);
 #endif
-
   
   // Model do:
   // - Initialize
@@ -415,9 +381,9 @@ int main(int argc, char** argv) {
         ch1dxy, ch1dyz,  ch1dxz, 
         v2px,   v2pz,    v2sz,     v2pn,
         pp,     pc,      qp,       qc,
-  vpz,    vsv,     epsilon,  delta,
-  phi,    theta,   fatAbsorb,
-  rank);
+	vpz,    vsv,     epsilon,  delta,
+	phi,    theta,   fatAbsorb,
+	rank);
 
   CloseSliceFile(sPtr);
   exit(0);    
