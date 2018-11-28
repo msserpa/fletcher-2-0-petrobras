@@ -40,8 +40,11 @@ void Model(const int st, const int iSource, const float dtOutput, SlicePtr sPtr,
 
     // Calculate / obtain source value on i timestep
     float src = Source(dt, it-1);
-    
-    DRIVER_InsertSource(dt,it-1,iSource,pc,qc,src);
+    #ifdef UNIFIED
+      DRIVER_InsertSource(dt,it-1,iSource,pc,qc,src, pp, qp);
+    #else
+      DRIVER_InsertSource(dt,it-1,iSource,pc,qc,src);
+    #endif
 
     const double t0=wtime();
     DRIVER_Propagate(  sx,   sy,   sz,   bord,

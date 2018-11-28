@@ -13,7 +13,12 @@ void CUDA_Propagate(const int sx, const int sy, const int sz, const int bord,
 	       float * restrict ch1dxx, float * restrict ch1dyy, float * restrict ch1dzz, 
 	       float * restrict ch1dxy, float * restrict ch1dyz, float * restrict ch1dxz, 
 	       float * restrict v2px, float * restrict v2pz, float * restrict v2sz, float * restrict v2pn,
-	       float * restrict pp, float * restrict pc, float * restrict qp, float * restrict qc);
+        #ifdef UNIFIED
+	       float *pp, float *pc, float *qp, float *qc
+        #else
+         	float * restrict pp, float * restrict pc, float * restrict qp, float * restrict qc
+        #endif	       
+         	);
 
 void CUDA_SwapArrays(float **pp, float **pc, float **qp, float **qc);
 

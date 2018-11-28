@@ -1,0 +1,98 @@
+==80439== NVPROF is profiling process 80439, command: ../ModelagemFletcher.exe TTI 216 216 216 16 12.5 12.5 12.5 0.001 0.1
+Using device(3) Tesla P100-SXM2-16GB with compute capability 6.0.
+Using device(2) Tesla P100-SXM2-16GB with compute capability 6.0.
+Using device(1) Tesla P100-SXM2-16GB with compute capability 6.0.
+Using device(0) Tesla P100-SXM2-16GB with compute capability 6.0.
+GPU memory usage = 1344 MiB
+running kernel_InsertSource with (1,1) blocks of (32,1) threads
+sx=256 sy=256 sz=256
+running kernel_Propagate with (2,32) blocks of (32,8) threads
+MSamples/s 31
+CUDA_Finalize: SUCCESS
+==80439== Profiling application: ../ModelagemFletcher.exe TTI 216 216 216 16 12.5 12.5 12.5 0.001 0.1
+==80439== Warning: Found 407097 invalid records in the result.
+==80439== Warning: This can happen if device ran out of memory or if a device kernel was stopped due to an assertion.
+==80439== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   99.63%  49.9601s       400  124.90ms  104.57ms  177.84ms  kernel_Propagate(int, int, int, int, float, float, float, float, int, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, int)
+                    0.37%  185.65ms         1  185.65ms  185.65ms  185.65ms  kernel_ArraysInit(float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, int)
+                    0.00%  1.1918ms       100  11.917us  2.2080us  205.92us  kernel_InsertSource(float, int, float*, float*)
+      API calls:   90.25%  49.9304s       501  99.662ms  8.1580us  177.84ms  cudaDeviceSynchronize
+                    8.64%  4.77991s       501  9.5407ms  31.814us  689.14ms  cudaLaunchKernel
+                    0.97%  534.99ms        20  26.749ms  11.291us  534.56ms  cudaMallocManaged
+                    0.11%  63.512ms        21  3.0244ms  2.1580us  7.7874ms  cudaFree
+                    0.01%  4.5957ms       384  11.967us     950ns  461.98us  cuDeviceGetAttribute
+                    0.01%  4.2377ms         4  1.0594ms  1.0353ms  1.1030ms  cudaGetDeviceProperties
+                    0.00%  2.3863ms         4  596.58us  595.57us  598.13us  cuDeviceTotalMem
+                    0.00%  807.24us       404  1.9980us  1.2570us  16.929us  cudaSetDevice
+                    0.00%  368.26us         4  92.065us  89.791us  95.871us  cuDeviceGetName
+                    0.00%  256.31us       501     511ns     190ns  1.9700us  cudaGetLastError
+                    0.00%  15.751us         4  3.9370us  2.9680us  4.6460us  cuDeviceGetPCIBusId
+                    0.00%  13.385us         8  1.6730us  1.0130us  2.8670us  cuDeviceGet
+                    0.00%  5.0000us         3  1.6660us     940ns  2.6030us  cuDeviceGetCount
+                    0.00%  4.4930us         4  1.1230us  1.0070us  1.2860us  cuDeviceGetUuid
+
+==80439== Unified Memory profiling result:
+Device "Tesla P100-SXM2-16GB (0)"
+   Count  Avg Size  Min Size  Max Size  Total Size  Total Time  Name
+     632  30.582KB  4.0000KB  0.9883MB  18.87500MB  2.404096ms  Host To Device
+    5864  157.66KB  4.0000KB  0.9961MB  902.8750MB  79.21562ms  Device To Host
+   92694         -         -         -           -  14.919642s  Gpu page fault groups
+       7         -         -         -           -  3.005500ms  Page throttles
+     393  4.0000KB  4.0000KB  4.0000KB  1.535156MB           -  Memory thrashes
+ 2005593  35.260KB  4.0000KB  988.00KB  67.44202GB   4.296156s  Transfers from Device
+ 2488044  34.326KB  4.0000KB  984.00KB  81.44978GB   6.970920s  Transfers to Device
+Device "Tesla P100-SXM2-16GB (1)"
+   Count  Avg Size  Min Size  Max Size  Total Size  Total Time  Name
+   84319         -         -         -           -  10.860366s  Gpu page fault groups
+ 2488044  34.326KB  4.0000KB  984.00KB  81.44978GB   6.970920s  Transfers from Device
+ 2051650  34.850KB  4.0000KB  988.00KB  68.18714GB   4.108059s  Transfers to Device
+Device "Tesla P100-SXM2-16GB (2)"
+   Count  Avg Size  Min Size  Max Size  Total Size  Total Time  Name
+   88350         -         -         -           -  14.352869s  Gpu page fault groups
+ 2051650  34.850KB  4.0000KB  988.00KB  68.18714GB   4.108059s  Transfers from Device
+ 2196449  34.465KB  4.0000KB  980.00KB  72.19508GB   6.384134s  Transfers to Device
+Device "Tesla P100-SXM2-16GB (3)"
+   Count  Avg Size  Min Size  Max Size  Total Size  Total Time  Name
+   26894  31.652KB  4.0000KB  968.00KB  831.3125MB  110.4888ms  Host To Device
+   90147         -         -         -           -  11.794849s  Gpu page fault groups
+ 2196449  34.465KB  4.0000KB  980.00KB  72.19508GB   6.384134s  Transfers from Device
+ 2005593  35.260KB  4.0000KB  988.00KB  67.44202GB   4.296156s  Transfers to Device
+Total CPU Page faults: 3111
+Total CPU thrashes: 393
+Total CPU throttles: 3
+
+==80439== NVTX result:
+==80439==   Thread "<unnamed>" (id = 1064342464)
+==80439==     Domain "<unnamed>"
+==80439==       Range "ArraysInit"
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+          Range:  100.00%  109.46us         1  109.46us  109.46us  109.46us  ArraysInit
+ GPU activities:  100.00%  185.65ms         1  185.65ms  185.65ms  185.65ms  kernel_ArraysInit(float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, int)
+      API calls:  100.00%  104.76us         1  104.76us  104.76us  104.76us  cudaLaunchKernel
+
+==80439==       Range "GPUInitialize"
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+          Range:  100.00%  278.67ms         1  278.67ms  278.67ms  278.67ms  GPUInitialize
+No kernels were profiled in this range.
+No API activities were profiled in this range.
+
+==80439==       Range "MemoryAlloc"
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+          Range:  100.00%  535.00ms         1  535.00ms  535.00ms  535.00ms  MemoryAlloc
+No kernels were profiled in this range.
+No API activities were profiled in this range.
+
+==80439==       Range "Model"
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+          Range:  100.00%  55.5837s         1  55.5837s  55.5837s  55.5837s  Model
+ GPU activities:  100.00%  49.9601s       400  124.90ms  104.57ms  177.84ms  kernel_Propagate(int, int, int, int, float, float, float, float, int, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, float*, int)
+                    0.00%  1.1918ms       100  11.917us  2.2080us  205.92us  kernel_InsertSource(float, int, float*, float*)
+      API calls:  100.00%  4.77981s       500  9.5596ms  31.814us  689.14ms  cudaLaunchKernel
+
+==80439==       Range "OpenSlice"
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+          Range:  100.00%  168.67ms         1  168.67ms  168.67ms  168.67ms  OpenSlice
+No kernels were profiled in this range.
+No API activities were profiled in this range.
+

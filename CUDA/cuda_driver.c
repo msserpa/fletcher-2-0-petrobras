@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 // Global device vars
+#ifndef UNIFIED
 float* dev_vpz=NULL;
 float* dev_vsv=NULL;
 float* dev_epsilon=NULL;
@@ -26,7 +27,21 @@ float* dev_pc=NULL;
 float* dev_qp=NULL;
 float* dev_qc=NULL;
 float* dev_fatAbsorb=NULL;
+#endif
 
+#ifdef UNIFIED
+void DRIVER_GPUInitialize(){
+	GPU_Initialize();
+}
+
+void DRIVER_ArraysInit(float * restrict vpz, float * restrict vsv, float * restrict epsilon, float * restrict delta, float * restrict phi,
+ float * restrict theta, float * restrict ch1dxx, float * restrict ch1dyy, float * restrict ch1dzz, float * restrict ch1dxy,
+  float * restrict ch1dyz, float * restrict ch1dxz, float * restrict pp, float * restrict pc, float * restrict qp, float * restrict qc,
+    float * restrict fatAbsorb, float * restrict v2px, float * restrict v2pz, float * restrict v2sz, float * restrict v2pn, const int N){
+		ArraysInit(vpz, vsv, epsilon, delta, phi, theta, ch1dxx, ch1dyy, ch1dzz, ch1dxy, ch1dyz, ch1dxz,
+			pp, pc, qp, qc, fatAbsorb, v2px, v2pz, v2sz, v2pn, N);
+}
+#endif
 
 void DRIVER_Initialize(const int rank, const int sx, const int sy, const int sz, const int bord,
 		       float dx, float dy, float dz, float dt,
@@ -82,8 +97,16 @@ void DRIVER_Propagate(const int sx, const int sy, const int sz, const int bord,
 }
 
 
+#ifdef UNIFIED
+void DRIVER_InsertSource(float dt, int it, int iSource, float *p, float*q, float src, float *pp, float *qp)
+#else
 void DRIVER_InsertSource(float dt, int it, int iSource, float *p, float*q, float src)
+#endif
 {
-	CUDA_InsertSource(src, iSource, p, q);
+	#ifdef UNIFIED
+		CUDA_InsertSource(src, iSource, p, q, pp, qp);
+	#else
+		CUDA_InsertSource(src, iSource, p, q);
+	#endif
 }
 

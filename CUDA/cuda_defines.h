@@ -4,7 +4,6 @@
 #define restrict __restrict__
 #define BSIZE_X 32
 #define BSIZE_Y 8
-
 #include <stdio.h>
 
 #define CUDA_CALL(call) do{      \

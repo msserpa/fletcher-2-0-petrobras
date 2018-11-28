@@ -5,6 +5,16 @@
 extern "C" {
 #endif
 
+
+#ifdef UNIFIED
+void DRIVER_ArraysInit(float * restrict vpz, float * restrict vsv, float * restrict epsilon, float * restrict delta, float * restrict phi,
+ float * restrict theta, float * restrict ch1dxx, float * restrict ch1dyy, float * restrict ch1dzz, float * restrict ch1dxy,
+  float * restrict ch1dyz, float * restrict ch1dxz, float * restrict pp, float * restrict pc, float * restrict qp, float * restrict qc,
+    float * restrict fatAbsorb, float * restrict v2px, float * restrict v2pz, float * restrict v2sz, float * restrict v2pn, const int N);
+
+void DRIVER_GPUInitialize();
+#endif
+
 void DRIVER_Initialize(const int rank, const int sx, const int sy, const int sz, const int bord,
 		       float dx, float dy, float dz, float dt,
 		       float * restrict ch1dxx, float * restrict ch1dyy, float * restrict ch1dzz, 
@@ -25,7 +35,11 @@ void DRIVER_Propagate(const int sx, const int sy, const int sz, const int bord,
 
 void DRIVER_Update_pointers(const int sx, const int sy, const int sz, float *pc);
 
+#ifdef UNIFIED
+void DRIVER_InsertSource(float dt, int it, int iSource, float *p, float*q, float src, float *pp, float *qp);
+#else
 void DRIVER_InsertSource(float dt, int it, int iSource, float *p, float*q, float src);
+#endif
 
 #ifdef __cplusplus
 }

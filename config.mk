@@ -11,7 +11,7 @@ CLANG=clang
 # Library paths
 GCC_LIBS=-lm
 ICC_LIBS=-lm -xHost -Wall -Wextra
-NVCC_LIBS=-lcudart -lstdc++    # it may include CUDA lib64 path...
+NVCC_LIBS=-L/usr/local/cuda/lib64 -lnvToolsExt -lcudart -lstdc++    # it may include CUDA lib64 path...
 PGCC_LIBS=-lm
 CLANG_LIBS=-lm
 
