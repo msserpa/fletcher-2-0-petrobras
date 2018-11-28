@@ -13,17 +13,18 @@ __global__ void kernel_Propagate(const int sx, const int sy, const int sz, const
 	       float * restrict v2px, float * restrict v2pz, float * restrict v2sz, float * restrict v2pn,
 	       float * restrict pp, float * restrict pc, float * restrict qp, float * restrict qc, const int dev)
 {
-  const int ix=(blockIdx.x * blockDim.x + threadIdx.x) + (dev * gridDim.x * blockDim.x);
+  const int ix=(blockIdx.x * blockDim.x + threadIdx.x);
   const int iy=(blockIdx.y * blockDim.y + threadIdx.y);
+  const int chunk = (sz - 2 * bord - 2) / 2;
+  
 
 #define SAMPLE_PRE_LOOP
 #include "../sample.h"
 #undef SAMPLE_PRE_LOOP
 
     // solve both equations in all internal grid points, 
-    // including absortion zone
-    
-    for (int iz=bord+1; iz<sz-bord-1; iz++) {
+    // including absortion zone 
+    for (int iz=bord+1 + dev*chunk; iz< bord + 1 + (dev + 1) * chunk; iz++) {
 
 #define SAMPLE_LOOP
 #include "../sample.h"
@@ -75,7 +76,7 @@ void CUDA_Propagate(const int sx, const int sy, const int sz, const int bord,
 
   dim3 threadsPerBlock(BSIZE_X, BSIZE_Y);
   #ifdef UNIFIED
-  dim3 numBlocks(sx/threadsPerBlock.x / deviceCount, sy/threadsPerBlock.y);
+  dim3 numBlocks(sx/threadsPerBlock.x, sy/threadsPerBlock.y);
   #else
   dim3 numBlocks(sx/threadsPerBlock.x, sy/threadsPerBlock.y);
   #endif

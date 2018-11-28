@@ -64,8 +64,8 @@ void ArraysInit(float * restrict vpz, float * restrict vsv, float * restrict eps
 
 void GPU_Initialize(){
   int device;
-  // CUDA_CALL(cudaGetDeviceCount(&deviceCount));
-  deviceCount = 4;
+//  CUDA_CALL(cudaGetDeviceCount(&deviceCount));
+  deviceCount = 2;
   for(device = deviceCount - 1; device >= 0; device--){
     cudaDeviceProp deviceProp;
     CUDA_CALL(cudaGetDeviceProperties(&deviceProp, device));
