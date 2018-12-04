@@ -7,24 +7,25 @@ extern int deviceCount;
 
 
 __global__ void kernel_Propagate(const int sx, const int sy, const int sz, const int bord,
-	       const float dx, const float dy, const float dz, const float dt, const int it, 
-	       float * restrict ch1dxx, float * restrict ch1dyy, float * restrict ch1dzz, 
-	       float * restrict ch1dxy, float * restrict ch1dyz, float * restrict ch1dxz, 
+	       const float dx, const float dy, const float dz, const float dt, const int it,
+	       float * restrict ch1dxx, float * restrict ch1dyy, float * restrict ch1dzz,
+	       float * restrict ch1dxy, float * restrict ch1dyz, float * restrict ch1dxz,
 	       float * restrict v2px, float * restrict v2pz, float * restrict v2sz, float * restrict v2pn,
-	       float * restrict pp, float * restrict pc, float * restrict qp, float * restrict qc, const int dev)
+	       float * restrict pp, float * restrict pc, float * restrict qp, float * restrict qc, const int dev,
+			   const int start, const int end)
 {
   const int ix=(blockIdx.x * blockDim.x + threadIdx.x);
   const int iy=(blockIdx.y * blockDim.y + threadIdx.y);
-  const int chunk = (sz - 2 * bord - 2) / 2;
-  
+
+
 
 #define SAMPLE_PRE_LOOP
 #include "../sample.h"
 #undef SAMPLE_PRE_LOOP
 
-    // solve both equations in all internal grid points, 
-    // including absortion zone 
-    for (int iz=bord+1 + dev*chunk; iz< bord + 1 + (dev + 1) * chunk; iz++) {
+    // solve both equations in all internal grid points,
+    // including absortion zone
+    for (int iz = start; iz < end; iz++) {
 
 #define SAMPLE_LOOP
 #include "../sample.h"
@@ -36,9 +37,9 @@ __global__ void kernel_Propagate(const int sx, const int sy, const int sz, const
 // Propagate: using Fletcher's equations, propagate waves one dt,
 //            either forward or backward in time
 void CUDA_Propagate(const int sx, const int sy, const int sz, const int bord,
-	       const float dx, const float dy, const float dz, const float dt, const int it, 
-	       float * restrict ch1dxx, float * restrict ch1dyy, float * restrict ch1dzz, 
-	       float * restrict ch1dxy, float * restrict ch1dyz, float * restrict ch1dxz, 
+	       const float dx, const float dy, const float dz, const float dt, const int it,
+	       float * restrict ch1dxx, float * restrict ch1dyy, float * restrict ch1dzz,
+	       float * restrict ch1dxy, float * restrict ch1dyz, float * restrict ch1dxz,
 	       float * restrict v2px, float * restrict v2pz, float * restrict v2sz, float * restrict v2pn,
         #ifdef UNIFIED
 	       float *pp, float *pc, float *qp, float *qc
@@ -88,25 +89,55 @@ void CUDA_Propagate(const int sx, const int sy, const int sz, const int bord,
   }
   #ifdef UNIFIED
   int d;
+	// Call kernel for shared cells between GPUs
+
+	const int chunk = (sz - 2 * bord - 2) / 2;
+
+	for(d = deviceCount - 2; d >= 0; d--){
+			int start = bord + 1 + (dev + 1) * chunk - 4;
+			int end = start + 8;
+			cudaSetDevice(d);
+			kernel_Propagate <<<numBlocks, threadsPerBlock>>> (  sx,   sy,   sz,   bord,
+		         dx,   dy,   dz,   dt,   it,
+		        ch1dxx,  ch1dyy,  ch1dzz,
+		        ch1dxy,  ch1dyz,  ch1dxz,
+		        v2px,  v2pz,  v2sz,  v2pn,
+		        pp,  pc,  qp,  qc, d, start, end);
+
+	      CUDA_CALL(cudaGetLastError());
+	      CUDA_CALL(cudaDeviceSynchronize());
+			  //cudaMemPrefetchAsync(pt + XY_SIZE * (start + 4), XY_SIZE * 4, d+1  );
+				CUDA_CALL(cudaGetLastError());
+	}
+
   for(d = deviceCount - 1; d >= 0; d--){
+		int start = bord + 1 + dev * chunk + 4;
+		int end = bord + 1 + (dev + 1) * chunk - 4;
+		if(d==0){
+			start-=4;
+		}
+		if(d == (deviceCount - 1)){
+			end+=4;
+		}
+
     cudaSetDevice(d);
-  kernel_Propagate <<<numBlocks, threadsPerBlock>>> (  sx,   sy,   sz,   bord,
-	         dx,   dy,   dz,   dt,   it, 
-	        ch1dxx,  ch1dyy,  ch1dzz, 
-	        ch1dxy,  ch1dyz,  ch1dxz, 
+    kernel_Propagate <<<numBlocks, threadsPerBlock>>> (  sx,   sy,   sz,   bord,
+	         dx,   dy,   dz,   dt,   it,
+	        ch1dxx,  ch1dyy,  ch1dzz,
+	        ch1dxy,  ch1dyz,  ch1dxz,
 	        v2px,  v2pz,  v2sz,  v2pn,
-	        pp,  pc,  qp,  qc, d);
-      
+	        pp,  pc,  qp,  qc, d, start, end);
+
       CUDA_CALL(cudaGetLastError());
       CUDA_CALL(cudaDeviceSynchronize());
     }
   #else
   kernel_Propagate <<<numBlocks, threadsPerBlock>>> (  sx,   sy,   sz,   bord,
-           dx,   dy,   dz,   dt,   it, 
-          dev_ch1dxx,  dev_ch1dyy,  dev_ch1dzz, 
-          dev_ch1dxy,  dev_ch1dyz,  dev_ch1dxz, 
+           dx,   dy,   dz,   dt,   it,
+          dev_ch1dxx,  dev_ch1dyy,  dev_ch1dzz,
+          dev_ch1dxy,  dev_ch1dyz,  dev_ch1dxz,
           dev_v2px,  dev_v2pz,  dev_v2sz,  dev_v2pn,
-          dev_pp,  dev_pc,  dev_qp,  dev_qc);  
+          dev_pp,  dev_pc,  dev_qp,  dev_qc);
     CUDA_CALL(cudaGetLastError());
     CUDA_CALL(cudaDeviceSynchronize());
   #endif
