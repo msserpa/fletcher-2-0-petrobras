@@ -56,7 +56,7 @@ int main(int argc, char** argv){
   if(argc < ARGS){
     printf("program requires %d input arguments; execution halted\n", ARGS - 1);
     exit(-1);
-  } 
+  }
   strcpy(fNameSec, argv[1]);
   nx = atoi(argv[2]);
   ny = atoi(argv[3]);
@@ -116,7 +116,7 @@ int main(int argc, char** argv){
   // dump problem input data
 
   #ifdef _DUMP
-    printf("Grid size is (%d,%d,%d) with spacing (%.2f,%.2f,%.2f); simulated area (%.2f,%.2f,%.2f) \n", 
+    printf("Grid size is (%d,%d,%d) with spacing (%.2f,%.2f,%.2f); simulated area (%.2f,%.2f,%.2f) \n",
       nx, ny, nz, dx, dy, dz, (nx - 1) * dx, (ny - 1) * dy, (nz - 1) * dz);
     printf("Grid is extended by %d absortion points and %d border points at each extreme\n", absorb, bord);
     printf("Wave is propagated at internal+absortion points of size (%d,%d,%d)\n",
@@ -167,14 +167,14 @@ int main(int argc, char** argv){
   float *delta = NULL;    // Thomsen isotropic parameter
   #ifdef UNIFIED
     cudaMallocManaged((void **) &delta, sx * sy * sz * sizeof(float), cudaMemAttachGlobal);
-  #else  
+  #else
     delta = (float *) malloc(sx * sy * sz * sizeof(float));
   #endif
 
   float *phi = NULL;     // isotropy simetry azimuth angle
   #ifdef UNIFIED
     cudaMallocManaged((void **) &phi, sx * sy * sz * sizeof(float), cudaMemAttachGlobal);
-  #else  
+  #else
     phi = (float *) malloc(sx * sy * sz * sizeof(float));
   #endif
 
@@ -204,7 +204,7 @@ int main(int argc, char** argv){
     case VTI:
 
       if(SIGMA > MAX_SIGMA){
-        printf("Since sigma (%f) is greater that threshold (%f), sigma is considered infinity and vsv is set to zero\n", 
+        printf("Since sigma (%f) is greater that threshold (%f), sigma is considered infinity and vsv is set to zero\n",
           SIGMA, MAX_SIGMA);
       }
       for(i = 0; i < sx * sy * sz; i++){
@@ -223,7 +223,7 @@ int main(int argc, char** argv){
     case TTI:
 
       if(SIGMA > MAX_SIGMA){
-        printf("Since sigma (%f) is greater that threshold (%f), sigma is considered infinity and vsv is set to zero\n", 
+        printf("Since sigma (%f) is greater that threshold (%f), sigma is considered infinity and vsv is set to zero\n",
           SIGMA, MAX_SIGMA);
       }
       #ifndef UNIFIED
@@ -246,42 +246,42 @@ int main(int argc, char** argv){
   float *ch1dxx = NULL;  // isotropy simetry deep angle
   #ifdef UNIFIED
     cudaMallocManaged((void **) &ch1dxx, sx * sy * sz * sizeof(float), cudaMemAttachGlobal);
-  #else  
+  #else
     ch1dxx = (float *) malloc(sx * sy * sz * sizeof(float));
   #endif
 
   float *ch1dyy = NULL;  // isotropy simetry deep angle
   #ifdef UNIFIED
     cudaMallocManaged((void **) &ch1dyy, sx * sy * sz * sizeof(float), cudaMemAttachGlobal);
-  #else  
+  #else
     ch1dyy = (float *) malloc(sx * sy * sz * sizeof(float));
   #endif
 
   float *ch1dzz = NULL;  // isotropy simetry deep angle
   #ifdef UNIFIED
     cudaMallocManaged((void **) &ch1dzz, sx * sy * sz * sizeof(float), cudaMemAttachGlobal);
-  #else  
+  #else
     ch1dzz = (float *) malloc(sx * sy * sz * sizeof(float));
   #endif
 
   float *ch1dxy = NULL;  // isotropy simetry deep angle
   #ifdef UNIFIED
     cudaMallocManaged((void **) &ch1dxy, sx * sy * sz * sizeof(float), cudaMemAttachGlobal);
-  #else  
+  #else
     ch1dxy = (float *) malloc(sx * sy * sz * sizeof(float));
   #endif
 
   float *ch1dyz = NULL;  // isotropy simetry deep angle
   #ifdef UNIFIED
     cudaMallocManaged((void **) &ch1dyz, sx * sy * sz * sizeof(float), cudaMemAttachGlobal);
-  #else  
+  #else
     ch1dyz = (float *) malloc(sx * sy * sz * sizeof(float));
   #endif
 
   float *ch1dxz = NULL;  // isotropy simetry deep angle
   #ifdef UNIFIED
     cudaMallocManaged((void **) &ch1dxz, sx * sy * sz * sizeof(float), cudaMemAttachGlobal);
-  #else  
+  #else
     ch1dxz = (float *) malloc(sx * sy * sz * sizeof(float));
   #endif
 
@@ -312,29 +312,29 @@ int main(int argc, char** argv){
   float *pp = NULL;
   #ifdef UNIFIED
     cudaMallocManaged((void **) &pp, sx * sy * sz * sizeof(float), cudaMemAttachGlobal);
-  #else  
-    pp = (float *) malloc(sx * sy * sz * sizeof(float)); 
+  #else
+    pp = (float *) malloc(sx * sy * sz * sizeof(float));
   #endif
 
   float *pc = NULL;
   #ifdef UNIFIED
     cudaMallocManaged((void **) &pc, sx * sy * sz * sizeof(float), cudaMemAttachGlobal);
-  #else  
-    pc = (float *) malloc(sx * sy * sz * sizeof(float)); 
+  #else
+    pc = (float *) malloc(sx * sy * sz * sizeof(float));
   #endif
 
   float *qp = NULL;
   #ifdef UNIFIED
     cudaMallocManaged((void **) &qp, sx * sy * sz * sizeof(float), cudaMemAttachGlobal);
-  #else  
-    qp = (float *) malloc(sx * sy * sz * sizeof(float)); 
+  #else
+    qp = (float *) malloc(sx * sy * sz * sizeof(float));
   #endif
 
   float *qc = NULL;
   #ifdef UNIFIED
     cudaMallocManaged((void **) &qc, sx * sy * sz * sizeof(float), cudaMemAttachGlobal);
   #else
-    qc = (float *) malloc(sx * sy * sz * sizeof(float)); 
+    qc = (float *) malloc(sx * sy * sz * sizeof(float));
   #endif
 
   #ifndef UNIFIED
@@ -351,7 +351,7 @@ int main(int argc, char** argv){
       cudaMallocManaged((void **) &fatAbsorb, sx * sy * sz * sizeof(float), cudaMemAttachGlobal);
     #else
       fatAbsorb = (float *) malloc(sx * sy * sz * sizeof(float));
-    #endif  
+    #endif
     CreateSquareAbsorb(sx, sy, sz, nx, ny, nz, bord, absorb, dx, dy, dz, fatAbsorb);
   #endif
 
@@ -360,7 +360,7 @@ int main(int argc, char** argv){
       cudaMallocManaged((void **) &fatAbsorb, sx * sy * sz * sizeof(float), cudaMemAttachGlobal);
     #else
       fatAbsorb = (float *) malloc(sx * sy * sz * sizeof(float));
-    #endif  
+    #endif
     CreateSphereAbsorb(sx, sy, sz, nx, ny, nz, bord, absorb, dx, dy, dz, fatAbsorb);
   #endif
 
@@ -378,7 +378,7 @@ int main(int argc, char** argv){
     maxvel = vpz[0] * sqrt(1.0 + 2 * epsilon[0]);
     for(i = 1; i < sx * sy * sz; i++)
       maxvel = fmaxf(maxvel, vpz[i] * sqrt(1.0 + 2 * epsilon[i]));
-    
+
     float mindelta = dx;
     if(dy < mindelta)
       mindelta = dy;
@@ -386,11 +386,11 @@ int main(int argc, char** argv){
       mindelta = dz;
     float recdt;
     recdt = (MI * mindelta) / maxvel;
-    
+
     #ifdef _DUMP
       printf("Recomended maximum time step is %f; used time step is %f\n", recdt, dt);
     #endif
-  
+
     // random boundary speed
     #ifdef _RANDOM_BDRY
       RandomVelocityBoundary(sx, sy, sz, nx, ny, nz, bord, absorb, vpz, vsv);
@@ -406,14 +406,14 @@ int main(int argc, char** argv){
   float *v2px = NULL;  // coeficient of H2(p)
   #ifdef UNIFIED
     cudaMallocManaged((void **) &v2px, sx * sy * sz * sizeof(float), cudaMemAttachGlobal);
-  #else  
+  #else
     v2px = (float *) malloc(sx * sy * sz * sizeof(float));
   #endif
 
   float *v2pz = NULL;  // coeficient of H1(q)
   #ifdef UNIFIED
     cudaMallocManaged((void **) &v2pz, sx * sy * sz * sizeof(float), cudaMemAttachGlobal);
-  #else  
+  #else
     v2pz = (float *) malloc(sx * sy * sz * sizeof(float));
   #endif
 
@@ -481,10 +481,10 @@ int main(int argc, char** argv){
   // - calls InsertSource
   // - do AbsorbingBoundary and DumpSliceFile, if needed
   // - Finalize
-  nvtxRangePushA("Model");
+  //nvtxRangePushA("Model");
   Model(st, iSource, dtOutput, sPtr, sx, sy, sz, bord, dx, dy, dz, dt, it, ch1dxx, ch1dyy, ch1dzz, ch1dxy, ch1dyz, ch1dxz,
     v2px, v2pz, v2sz, v2pn, pp, pc, qp, qc, vpz, vsv, epsilon, delta, phi, theta, fatAbsorb, rank);
-  nvtxRangePop();
+  //nvtxRangePop();
 
   CloseSliceFile(sPtr);
   #ifdef UNIFIED
@@ -533,5 +533,5 @@ int main(int argc, char** argv){
     free(fatAbsorb);
   #endif
 
-  exit(0);    
+  exit(0);
 }

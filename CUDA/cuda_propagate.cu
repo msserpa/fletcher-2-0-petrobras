@@ -5,6 +5,11 @@
 
 extern int deviceCount;
 
+#ifdef UNIFIED
+  #include <cuda_runtime.h>
+  #include <nvToolsExt.h>
+#endif
+
 
 __global__ void kernel_Propagate(const int sx, const int sy, const int sz, const int bord,
 	       const float dx, const float dy, const float dz, const float dt, const int it,
@@ -92,9 +97,14 @@ void CUDA_Propagate(const int sx, const int sy, const int sz, const int bord,
 	// Call kernel for shared cells between GPUs
 
 	const int chunk = (sz - 2 * bord - 2) / 2;
+	//const int sizeGhost1 = 4 * (ind(1,0,0)-ind(0,0,0)) * (ind(0,1,0)-ind(0,0,0));
+	const int sizeGhost2 = (ind(0,0,1)-ind(0,0,0));
 
+	// printf("foda-se: %d %d %d\n", sizeGhost1, sizeGhost2, ind(0,0,0));
+
+	nvtxRangePushA("Shared Voxels");
 	for(d = deviceCount - 2; d >= 0; d--){
-			int start = bord + 1 + (dev + 1) * chunk - 4;
+			int start = bord + 1 + (d + 1) * chunk - 4;
 			int end = start + 8;
 			cudaSetDevice(d);
 			kernel_Propagate <<<numBlocks, threadsPerBlock>>> (  sx,   sy,   sz,   bord,
@@ -105,14 +115,34 @@ void CUDA_Propagate(const int sx, const int sy, const int sz, const int bord,
 		        pp,  pc,  qp,  qc, d, start, end);
 
 	      CUDA_CALL(cudaGetLastError());
-	      CUDA_CALL(cudaDeviceSynchronize());
-			  //cudaMemPrefetchAsync(pt + XY_SIZE * (start + 4), XY_SIZE * 4, d+1  );
+				cudaMemPrefetchAsync(pc + sizeGhost2 * (start + 4), sizeGhost2 * 4 * sizeof(float), d+1);
+				//cudaMemPrefetchAsync(qc + sizeGhost2 * (start + 4), sizeGhost2 * 4 * sizeof(float), d+1);
+
+				printf("Prefetch pc: %p until %p (size: %lu) to dev:%d\n", pc + sizeGhost2 * (start + 4), pc + sizeGhost2 * (start + 4) + sizeGhost2 * 4, sizeGhost2 * 4 * sizeof(float), d+1);
+				//printf("Prefetch qc: %p until %p (size: %lu) to dev:%d\n", qc + sizeGhost2 * (start + 4), qc + sizeGhost2 * (start + 4) + sizeGhost2 * 4, sizeGhost2 * 4 * sizeof(float), d+1);
+
 				CUDA_CALL(cudaGetLastError());
 	}
 
+
+
+	for(d = deviceCount - 2; d >= 0; d--){
+			int start = bord + 1 + (d + 1) * chunk - 4;
+			int end = start + 8;
+			cudaSetDevice(d);
+			CUDA_CALL(cudaDeviceSynchronize());
+			cudaMemPrefetchAsync(pp + sizeGhost2 * (start), sizeGhost2 * 8 * sizeof(float), d+1);
+			//cudaMemPrefetchAsync(qp + sizeGhost2 * (start), sizeGhost2 * 8 * sizeof(float), d+1);
+			printf("Prefetch pp: %p until %p (size: %lu) to dev:%d\n", pp + sizeGhost2 * (start), pp + sizeGhost2 * (start) + sizeGhost2 * 8, sizeGhost2 * 8 * sizeof(float), d+1);
+			//printf("Prefetch qp: %p until %p (size: %lu) to dev:%d\n", qp + sizeGhost2 * (start), qp + sizeGhost2 * (start) + sizeGhost2 * 8, sizeGhost2 * 8 * sizeof(float), d+1);
+
+	}
+
+	nvtxRangePop();
+	nvtxRangePushA("Exclusive");
   for(d = deviceCount - 1; d >= 0; d--){
-		int start = bord + 1 + dev * chunk + 4;
-		int end = bord + 1 + (dev + 1) * chunk - 4;
+		int start = bord + 1 + d * chunk + 4;
+		int end = bord + 1 + (d + 1) * chunk - 4;
 		if(d==0){
 			start-=4;
 		}
@@ -129,8 +159,15 @@ void CUDA_Propagate(const int sx, const int sy, const int sz, const int bord,
 	        pp,  pc,  qp,  qc, d, start, end);
 
       CUDA_CALL(cudaGetLastError());
-      CUDA_CALL(cudaDeviceSynchronize());
-    }
+
+  }
+
+	for(d = deviceCount - 1; d >= 0; d--){
+		cudaSetDevice(d);
+		CUDA_CALL(cudaDeviceSynchronize());
+	}
+
+	nvtxRangePop();
   #else
   kernel_Propagate <<<numBlocks, threadsPerBlock>>> (  sx,   sy,   sz,   bord,
            dx,   dy,   dz,   dt,   it,
